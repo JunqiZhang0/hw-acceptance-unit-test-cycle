@@ -38,10 +38,26 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  def find_with_same_director
+
+    @movie = Movie.find(params[:id])
+    # Find director of current movie
+    @current_movie_director = @movie.director
+    if @current_movie_director.nil? or @current_movie_director.empty?
+      # If current movie has no director, flash warning and redirect to movies index page
+      flash[:warning] = "'#{@movie.title}' has no director info."
+      redirect_to movies_path
+    else
+      # Else find all movies with the current movie director
+      @movies_to_render = Movie.where(director: @current_movie_director).find_each
+    end
+  end
+
   private
+
   # Making "internal" methods private is not required, but is a common practice.
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
-    params.require(:movie).permit(:title, :rating, :description, :release_date)
+    params.require(:movie).permit(:title, :rating, :description, :release_date, :director)
   end
 end
